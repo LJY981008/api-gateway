@@ -1,8 +1,8 @@
 package com.example.apigateway.filter;
 
-import com.example.taskgatway.dto.AuthUserDto;
-import com.example.taskgatway.enums.UserRole;
-import com.example.taskgatway.util.JwtUtil;
+import com.example.apigateway.dto.AuthUserDto;
+import com.example.apigateway.enums.UserRole;
+import com.example.apigateway.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

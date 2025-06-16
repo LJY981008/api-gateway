@@ -1,6 +1,7 @@
 package com.example.apigateway.dto;
 
-import com.example.taskgatway.enums.UserRole;
+
+import com.example.apigateway.enums.UserRole;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

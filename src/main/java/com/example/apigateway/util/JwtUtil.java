@@ -1,7 +1,7 @@
 package com.example.apigateway.util;
 
-import com.example.taskgatway.constant.Const;
-import com.example.taskgatway.enums.UserRole;
+import com.example.apigateway.constant.Const;
+import com.example.apigateway.enums.UserRole;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;

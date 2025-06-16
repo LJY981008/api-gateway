@@ -1,6 +1,6 @@
 package com.example.apigateway.enums;
 
-import com.example.taskproject.common.exception.CustomException;
+import com.example.apigateway.exception.CustomException;
 
 import java.util.Arrays;
 import java.util.function.Function;

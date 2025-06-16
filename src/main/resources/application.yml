@@ -3,7 +3,10 @@ server:
 
 spring:
   application:
-    name: apiGateway
+    name: api-gateway
+  main:
+    web-application-type: reactive
+    allow-bean-definition-overriding: true
   cloud:
     gateway:
       server:
