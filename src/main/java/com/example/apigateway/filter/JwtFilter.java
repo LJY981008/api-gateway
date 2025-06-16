@@ -4,37 +4,33 @@ import com.example.apigateway.dto.AuthUserDto;
 import com.example.apigateway.enums.UserRole;
 import com.example.apigateway.util.JwtUtil;
 import io.jsonwebtoken.Claims;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.util.List;
 
 @Slf4j
+@Component
 @RequiredArgsConstructor
-public class JwtFilter extends OncePerRequestFilter {
+public class JwtFilter implements WebFilter {
 
     private final JwtUtil jwtUtil;
 
     @Override
-    public void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain chain
-    ) throws IOException, ServletException {
-        String bearerJwt = request.getHeader("Authorization");
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        String bearerJwt = exchange.getRequest().getHeaders().getFirst("Authorization");
 
         if (bearerJwt == null || bearerJwt.isEmpty()) {
-            chain.doFilter(request, response);
-            return;
+            return chain.filter(exchange);
         }
 
         String jwt = jwtUtil.substringToken(bearerJwt);
@@ -42,8 +38,8 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             Claims claims = jwtUtil.extractClaims(jwt);
             if (claims == null) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "잘못된 토큰입니다.");
-                return;
+                exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
+                return exchange.getResponse().setComplete();
             }
 
             Long userId = jwtUtil.getUserId(jwt);
@@ -56,12 +52,12 @@ public class JwtFilter extends OncePerRequestFilter {
                     authUser, "", List.of(new SimpleGrantedAuthority("ROLE_" + userRole.name()))
             );
 
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
-            chain.doFilter(request, response);
+            return chain.filter(exchange)
+                    .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authenticationToken));
         } catch (Exception e) {
             log.error("예상치 못한 예외 발생", e);
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+            return exchange.getResponse().setComplete();
         }
     }
 }
