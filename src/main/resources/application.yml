@@ -17,25 +17,11 @@ spring:
               predicates:
                 - Path=/user-service/**
               filters:
-                - StripPrefix=1
+                - RewritePath=^/user-service/(?<segment>.*), /$\{segment}
           discovery:
             locator:
               enabled: true
               lower-case-service-id: true
-          cors:
-            configurations:
-              '[/**]':
-                allowedOrigins: "*"
-                allowedMethods: 
-                  - GET
-                  - POST
-                  - PUT
-                  - DELETE
-                  - OPTIONS
-                allowedHeaders: "*"
-                exposedHeaders: 
-                  - Authorization
-                allowCredentials: true
 
 eureka:
   client:
